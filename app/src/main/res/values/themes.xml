@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.IptvPrueba" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>
