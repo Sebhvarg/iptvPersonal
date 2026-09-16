@@ -10,7 +10,7 @@ import java.net.URL
 
 class RemotePlaylistDataSource(
     private val playlistUrl: String = "https://raw.githubusercontent.com/Sebhvarg/iptvPersonal/main/playlist.m3u",
-    private val fallbackDataSource: PlaylistDataSource = DefaultPlaylistDataSource()
+    private val fallbackDataSource: PlaylistDataSource
 ) : PlaylistDataSource {
 
     private val tag = "RemotePlaylistDS"
@@ -37,14 +37,15 @@ class RemotePlaylistDataSource(
                 val content = reader.use { it.readText() }
                 connection.disconnect()
                 if (content.isNotBlank() && content.contains("#EXTINF")) {
+                    Log.d(tag, "Successfully loaded remote playlist from GitHub (${content.lines().size} lines)")
                     return@withContext content
                 }
             }
             connection.disconnect()
-            Log.w(tag, "Remote playlist unreachable or invalid, using fallback")
+            Log.w(tag, "Remote playlist returned code $responseCode, using local assets fallback")
             fallbackDataSource.getPlaylistRaw()
         } catch (e: Exception) {
-            Log.e(tag, "Error fetching remote playlist: ${e.message}, using fallback", e)
+            Log.e(tag, "Error fetching remote playlist: ${e.message}, using local assets fallback", e)
             fallbackDataSource.getPlaylistRaw()
         }
     }

@@ -5,6 +5,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.example.iptvprueba.data.datasource.AssetPlaylistDataSource
 import com.example.iptvprueba.data.datasource.RemotePlaylistDataSource
 import com.example.iptvprueba.data.parser.DefaultM3uParser
 import com.example.iptvprueba.data.repository.DefaultChannelRepository
@@ -19,7 +20,8 @@ import com.example.iptvprueba.ui.viewmodel.IptvViewModelFactory
 class MainActivity : ComponentActivity() {
 
     private val viewModel: IptvViewModel by viewModels {
-        val dataSource = RemotePlaylistDataSource()
+        val assetDataSource = AssetPlaylistDataSource(applicationContext)
+        val dataSource = RemotePlaylistDataSource(fallbackDataSource = assetDataSource)
         val parser = DefaultM3uParser()
         val repository = DefaultChannelRepository(dataSource, parser)
         val getChannelsUseCase = GetChannelsUseCase(repository)

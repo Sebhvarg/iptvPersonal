@@ -1,6 +1,5 @@
 package com.example.iptvprueba.data.repository
 
-import com.example.iptvprueba.data.datasource.DefaultPlaylistDataSource
 import com.example.iptvprueba.data.datasource.PlaylistDataSource
 import com.example.iptvprueba.data.parser.DefaultM3uParser
 import com.example.iptvprueba.data.parser.M3uParser
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 
 class DefaultChannelRepository(
-    private val playlistDataSource: PlaylistDataSource = DefaultPlaylistDataSource(),
+    private val playlistDataSource: PlaylistDataSource,
     private val parser: M3uParser = DefaultM3uParser(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ChannelRepository {
