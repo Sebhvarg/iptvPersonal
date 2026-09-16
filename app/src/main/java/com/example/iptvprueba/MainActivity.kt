@@ -1,47 +1,46 @@
 package com.example.iptvprueba
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.tv.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Surface
+import androidx.activity.viewModels
+import com.example.iptvprueba.data.datasource.RemotePlaylistDataSource
+import com.example.iptvprueba.data.parser.DefaultM3uParser
+import com.example.iptvprueba.data.repository.DefaultChannelRepository
+import com.example.iptvprueba.domain.usecase.GetChannelsUseCase
+import com.example.iptvprueba.domain.usecase.RefreshChannelsUseCase
+import com.example.iptvprueba.player.DefaultTvPlayerController
+import com.example.iptvprueba.ui.screens.TvMainScreen
 import com.example.iptvprueba.ui.theme.IptvPruebaTheme
+import com.example.iptvprueba.ui.viewmodel.IptvViewModel
+import com.example.iptvprueba.ui.viewmodel.IptvViewModelFactory
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalTvMaterial3Api::class)
+
+    private val viewModel: IptvViewModel by viewModels {
+        val dataSource = RemotePlaylistDataSource()
+        val parser = DefaultM3uParser()
+        val repository = DefaultChannelRepository(dataSource, parser)
+        val getChannelsUseCase = GetChannelsUseCase(repository)
+        val refreshChannelsUseCase = RefreshChannelsUseCase(repository)
+        val playerController = DefaultTvPlayerController(applicationContext)
+
+        IptvViewModelFactory(
+            getChannelsUseCase = getChannelsUseCase,
+            refreshChannelsUseCase = refreshChannelsUseCase,
+            playerController = playerController
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         setContent {
             IptvPruebaTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    shape = RectangleShape
-                ) {
-                    Greeting("Android")
-                }
+                TvMainScreen(viewModel = viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    IptvPruebaTheme {
-        Greeting("Android")
     }
 }
